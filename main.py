@@ -7,6 +7,8 @@ The player controls a triangular spaceship that can rotate and must avoid astero
 Controls:
 - A: Rotate left
 - D: Rotate right
+- W: Move forward
+- S: Move backward
 - Close window or Ctrl+C to quit
 
 Author: Boot.dev Asteroids Project
@@ -36,6 +38,13 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Asteroids")  # Set the window title
     
+    # Create sprite groups for managing game objects
+    updatable = pygame.sprite.Group()  # Objects that need to be updated each frame
+    drawable = pygame.sprite.Group()   # Objects that need to be drawn each frame
+    
+    # Set the containers for the Player class so new instances are automatically added
+    Player.containers = (updatable, drawable)
+    
     # Initialize the player spaceship in the center of the screen
     x = SCREEN_WIDTH / 2   # Horizontal center
     y = SCREEN_HEIGHT / 2  # Vertical center
@@ -59,13 +68,14 @@ def main():
         # This erases everything from the previous frame
         screen.fill("black")
         
-        # Update game objects
-        # Update player position/rotation based on input and delta time
-        player.update(dt)
+        # Update all updatable objects (player, asteroids, bullets, etc.)
+        # This calls the update method on all objects in the updatable group
+        updatable.update(dt)
         
-        # Render all game objects
-        # Draw the player spaceship on the screen
-        player.draw(screen)
+        # Render all drawable objects
+        # Loop through each drawable object and call its draw method
+        for drawable_object in drawable:
+            drawable_object.draw(screen)
         
         # Update the display to show all rendered changes
         # This swaps the back buffer with the front buffer (double buffering)
