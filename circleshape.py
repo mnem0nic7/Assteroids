@@ -72,3 +72,23 @@ class CircleShape(pygame.sprite.Sprite):
         """
         # Sub-classes must override this method to implement their own update logic
         pass
+
+    def collides_with(self, other):
+        """
+        Check if this CircleShape collides with another CircleShape.
+        
+        Uses simple circle-to-circle collision detection by comparing the distance
+        between centers to the sum of their radii.
+        
+        Args:
+            other (CircleShape): Another CircleShape object to check collision with
+            
+        Returns:
+            bool: True if the circles are colliding, False otherwise
+        """
+        # Calculate the distance between the centers of the two circles
+        distance = self.position.distance_to(other.position)
+        
+        # Check if the distance is less than or equal to the sum of both radii
+        # If so, the circles are overlapping (colliding)
+        return distance <= (self.radius + other.radius)

@@ -15,4 +15,9 @@ ASTEROID_MAX_RADIUS = ASTEROID_MIN_RADIUS * ASTEROID_KINDS  # Largest asteroid r
 PLAYER_RADIUS = 20  # Collision radius of the player ship in pixels
 PLAYER_TURN_SPEED = 300  # Player rotation speed in degrees per second
 PLAYER_SPEED = 200  # Player movement speed in pixels per second
+PLAYER_SHOOT_SPEED = 500  # Speed of bullets fired by the player in pixels per second
+PLAYER_SHOOT_COOLDOWN = 0.3  # Time in seconds between shots
+
+# Shot/Bullet properties
+SHOT_RADIUS = 5  # Radius of player bullets in pixels
 PLAYER_SPEED = 200  # Player movement speed in pixels per second

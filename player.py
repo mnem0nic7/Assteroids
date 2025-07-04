@@ -1,7 +1,8 @@
 # Import required modules
 import pygame
 from circleshape import CircleShape
-from constants import PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED
+from constants import PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOOT_SPEED, PLAYER_SHOOT_COOLDOWN
+from shot import Shot
 
 class Player(CircleShape):
     """
@@ -21,6 +22,8 @@ class Player(CircleShape):
         super().__init__(x, y, PLAYER_RADIUS)
         # Initialize rotation angle (in degrees)
         self.rotation = 0
+        # Initialize shooting cooldown timer
+        self.shoot_timer = 0
 
     def triangle(self):
         """
@@ -73,6 +76,28 @@ class Player(CircleShape):
         # Move the player by adding the scaled forward vector to position
         self.position += forward * PLAYER_SPEED * dt
     
+    def shoot(self):
+        """
+        Create a new shot at the player's position moving in the direction they are facing.
+        Only shoots if the cooldown timer has expired.
+        """
+        # Check if enough time has passed since the last shot
+        if self.shoot_timer > 0:
+            return  # Still on cooldown, don't shoot
+        
+        # Create a new shot at the player's current position
+        shot = Shot(self.position.x, self.position.y)
+        
+        # Calculate the direction the player is facing
+        # Start with a unit vector pointing up (0, 1)
+        direction = pygame.Vector2(0, 1).rotate(self.rotation)
+        
+        # Set the shot's velocity by scaling the direction vector
+        shot.velocity = direction * PLAYER_SHOOT_SPEED
+        
+        # Set the cooldown timer to prevent rapid firing
+        self.shoot_timer = PLAYER_SHOOT_COOLDOWN
+    
     def update(self, dt):
         """
         Update the player based on keyboard input.
@@ -80,6 +105,10 @@ class Player(CircleShape):
         Args:
             dt (float): Delta time (time since last frame) in seconds
         """
+        # Decrease the shooting cooldown timer
+        if self.shoot_timer > 0:
+            self.shoot_timer -= dt
+        
         # Get the current state of all keyboard keys
         keys = pygame.key.get_pressed()
 
@@ -95,3 +124,6 @@ class Player(CircleShape):
         # Move backward when 'S' key is pressed (negative dt for reverse)
         if keys[pygame.K_s]:
             self.move(-dt)
+        # Shoot when spacebar is pressed (respects cooldown timer)
+        if keys[pygame.K_SPACE]:
+            self.shoot()

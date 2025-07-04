@@ -9,6 +9,7 @@ Controls:
 - D: Rotate right
 - W: Move forward
 - S: Move backward
+- SPACE: Shoot
 - Close window or Ctrl+C to quit
 
 Author: Boot.dev Asteroids Project
@@ -18,6 +19,9 @@ Author: Boot.dev Asteroids Project
 import pygame
 from constants import *  # Import all game constants
 from player import Player  # Import the Player class
+from asteroid import Asteroid  # Import the Asteroid class
+from asteroidfield import AsteroidField  # Import the AsteroidField class
+from shot import Shot  # Import the Shot class
 
 def main():
     """
@@ -41,14 +45,28 @@ def main():
     # Create sprite groups for managing game objects
     updatable = pygame.sprite.Group()  # Objects that need to be updated each frame
     drawable = pygame.sprite.Group()   # Objects that need to be drawn each frame
+    asteroids = pygame.sprite.Group()  # All asteroids in the game
+    shots = pygame.sprite.Group()      # All shots/bullets in the game
     
     # Set the containers for the Player class so new instances are automatically added
     Player.containers = (updatable, drawable)
+    
+    # Set the containers for the Asteroid class so new instances are automatically added
+    Asteroid.containers = (asteroids, updatable, drawable)
+    
+    # Set the containers for the AsteroidField class (only needs updating, not drawing)
+    AsteroidField.containers = (updatable,)
+    
+    # Set the containers for the Shot class so new instances are automatically added
+    Shot.containers = (shots, updatable, drawable)
     
     # Initialize the player spaceship in the center of the screen
     x = SCREEN_WIDTH / 2   # Horizontal center
     y = SCREEN_HEIGHT / 2  # Vertical center
     player = Player(x, y)
+    
+    # Create the asteroid field to spawn asteroids
+    asteroid_field = AsteroidField()
     
     # Main game loop - runs continuously until the game is closed
     # This is the heart of the game where all updates and rendering happen
@@ -71,6 +89,21 @@ def main():
         # Update all updatable objects (player, asteroids, bullets, etc.)
         # This calls the update method on all objects in the updatable group
         updatable.update(dt)
+        
+        # Check for collisions between player and asteroids
+        for asteroid in asteroids:
+            if player.collides_with(asteroid):
+                print("Game over!")
+                return  # Exit the game immediately
+        
+        # Check for collisions between shots and asteroids
+        for asteroid in asteroids:
+            for shot in shots:
+                if asteroid.collides_with(shot):
+                    # Split the asteroid (handles destruction and spawning smaller ones)
+                    asteroid.split()
+                    # Remove the shot from the game
+                    shot.kill()
         
         # Render all drawable objects
         # Loop through each drawable object and call its draw method
